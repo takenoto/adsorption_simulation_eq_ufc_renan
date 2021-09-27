@@ -11,7 +11,7 @@ class UnidimensionalDcDt {
       required double dc_dx,
       required double porosity,
       required double dq_dt}) {
-    return dax * d2c_dx2 - u * dc_dx + ((1 - porosity) / porosity) * dq_dt;
+    return dax * d2c_dx2 - u * dc_dx - ((1 - porosity) / porosity) * dq_dt;
   }
 }
 
