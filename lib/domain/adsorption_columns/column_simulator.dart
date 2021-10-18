@@ -29,6 +29,8 @@ class AdsorptionColumnSimulator {
       final newState = column.newStateUsingDerivatives(
           current: previousState, derivatives: derivatives, dt: dt);
           output.add(UnidimensionalColumnSimulationOutput(t, newState));
+      //Põe o novo estado como o antigo
+      previousState = newState;
     }
 
     return output;

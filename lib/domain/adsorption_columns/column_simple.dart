@@ -1,5 +1,3 @@
-
-
 import 'package:adsorption_columns_flutterrr/domain/discretization/discretization.dart';
 
 import 'calculators.dart';
@@ -29,17 +27,17 @@ class UnidimensionalColumnState {
       required this.adsorbedPhaseConcs,
       required this.space});
 
-  UnidimensionalColumnState clone(){
-      return  UnidimensionalColumnState(
+  UnidimensionalColumnState clone() {
+    return UnidimensionalColumnState(
         space: space.clone(),
-        adsorbedPhaseConcs: adsorbedPhaseConcs.clone()
-            as UnidimensionalConcentration<String>,
-        fluidPhaseConcs: fluidPhaseConcs.clone()
-            as UnidimensionalConcentration<String>);
+        adsorbedPhaseConcs:
+            adsorbedPhaseConcs.clone() as UnidimensionalConcentration<String>,
+        fluidPhaseConcs:
+            fluidPhaseConcs.clone() as UnidimensionalConcentration<String>);
   }
 }
 
-class IdealUnidimChromColumnDerivatives{
+class IdealUnidimChromColumnDerivatives {
   final Map<String, List<double>> derivativesC;
   final Map<String, List<double>> derivativesQ;
   IdealUnidimChromColumnDerivatives(this.derivativesC, this.derivativesQ);
@@ -70,9 +68,15 @@ class IdealUnidimensionalChromatographicColumn {
 
   ///Os valores opcionais podem ser usados para  sobrescrever os valores passados no criador dessa coluna.
   ///[dt] é em segundos
-  IdealUnidimChromColumnDerivatives calculateDerivatives(UnidimensionalColumnState from,
-      {double? porosity, double? u, double? dax, double? nu}) {
-        //Prepara um novo estado, limpo, para usar.
+  IdealUnidimChromColumnDerivatives calculateDerivatives(
+      UnidimensionalColumnState from,
+      {double? porosity,
+      double? u,
+      double? dax,
+      double? nu,
+      UnidimensionalBoundaryConditions? dc_dxBoundaries,
+      UnidimensionalBoundaryConditions? d2c_dx2Boundaries}) {
+    //Prepara um novo estado, limpo, para usar.
     UnidimensionalColumnState newState = from.clone();
 
     //Determina quais as keys existentes para as substâncias
@@ -94,7 +98,7 @@ class IdealUnidimensionalChromatographicColumn {
       if (i > 0) previousZ = space.values[i - 1];
       double z = space.values[i];
       double? nextZ;
-      if (i < space.values.length-1) nextZ = space.values[i + 1];
+      if (i < space.values.length - 1) nextZ = space.values[i + 1];
       //Faz os cálculos para cada substância, uma a uma
       for (var substanceKey in substancesKeys) {
         //Para a posição atual:
@@ -108,7 +112,14 @@ class IdealUnidimensionalChromatographicColumn {
         //Se for em qualquer outro, faz a que for possível
         double? d2c_dx2, dc_dx, dq_dt;
         final dq_dtFunc = dqDt.forSubstance(substanceKey);
-        //TODO checa se nessa posição d²c/dx² é condição de contorno. for, usa o valor. Se não, faz os cálculos.
+
+        //Aplica condições de contorno
+        //1) dc_dx
+        dc_dx = dc_dxBoundaries?.map[substanceKey]?[i];
+        //2) d²c/dx²
+        d2c_dx2 = d2c_dx2Boundaries?.map[substanceKey]?[i];
+        
+
         if (previousZ != null && nextZ != null) {
           //d²c/dx²
           //É possível usar os dois para calcular por diferenças centrais
@@ -117,20 +128,24 @@ class IdealUnidimensionalChromatographicColumn {
               f_0: concentrationProfile[i],
               f_plus_1: concentrationProfile[i + 1],
               h: (nextZ - previousZ) / 2);
-          d2c_dx2 = secondDerivativeCalc.d2ydx2(s);
-        } 
-        
+          d2c_dx2 = d2c_dx2??secondDerivativeCalc.d2ydx2(s);
+        }
+
         if (previousZ != null) {
           //O anterior é zero, então precisa usar o próximo
-          //dc/dx
-          dc_dx = singleDerivativeCalc.difference(
-              ValuePair(concentrationProfile[i - 1], concentrationProfile[i]),
-              ValuePair(previousZ, z));
+          //dc/dx Só recebe o valor se já não tiver sido atribuído...
+          dc_dx = dc_dx ??
+              singleDerivativeCalc.difference(
+                  ValuePair(
+                      concentrationProfile[i - 1], concentrationProfile[i]),
+                  ValuePair(previousZ, z));
         } else if (nextZ != null) {
           //dc/dx
-          dc_dx = singleDerivativeCalc.difference(
-              ValuePair(concentrationProfile[i], concentrationProfile[i + 1]),
-              ValuePair(z, nextZ));
+          dc_dx = dc_dx ??
+              singleDerivativeCalc.difference(
+                  ValuePair(
+                      concentrationProfile[i], concentrationProfile[i + 1]),
+                  ValuePair(z, nextZ));
         }
 
         dq_dt = dq_dtFunc(
@@ -140,7 +155,7 @@ class IdealUnidimensionalChromatographicColumn {
         //2.1) Calcula o valor de dcdt:
         final dcDt = _dcDt.dc_dt(
             dax: dax ?? this.dax,
-            d2c_dx2: d2c_dx2??0,
+            d2c_dx2: d2c_dx2!,
             nu: nu ?? this.nu,
             u: u ?? this.u,
             dc_dx: dc_dx!,
@@ -153,26 +168,23 @@ class IdealUnidimensionalChromatographicColumn {
         derivativesQ[substanceKey]?.add(dq_dt);
       }
     }
-    return IdealUnidimChromColumnDerivatives(
-      derivativesC,
-      derivativesQ
-    );
-    
+    return IdealUnidimChromColumnDerivatives(derivativesC, derivativesQ);
   }
-  
-  //[dt] must be IN SECONDS!
+
+  //[dt] Deve possuir a mesma unidade das derivadas passadas
   UnidimensionalColumnState newStateUsingDerivatives(
-    {required UnidimensionalColumnState current,
-    required IdealUnidimChromColumnDerivatives derivatives,
-    required double dtInSec}
-  ){
-    final dt = dtInSec;
+      {required UnidimensionalColumnState current,
+      required IdealUnidimChromColumnDerivatives derivatives,
+      required double dt}) {
     final newState = current.clone();
     
-    for(int i=0; i<newState.space.values.length; i++){
-      for(var key in newState.fluidPhaseConcs.concs.keys){
-         newState.fluidPhaseConcs.concs[key]!.values[i] += derivatives.derivativesC[key]![i]*dt;
-         newState.adsorbedPhaseConcs.concs[key]!.values[i] += derivatives.derivativesQ[key]![i]*dt;
+    //Por diferenças finitas:
+    for (int i = 0; i < newState.space.values.length; i++) {
+      for (var key in newState.fluidPhaseConcs.concs.keys) {
+        newState.fluidPhaseConcs.concs[key]!.values[i] +=
+            derivatives.derivativesC[key]![i] * dt;
+        newState.adsorbedPhaseConcs.concs[key]!.values[i] +=
+            derivatives.derivativesQ[key]![i] * dt;
       }
     }
     return newState;

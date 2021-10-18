@@ -1,5 +1,23 @@
 import 'dart:math' as math;
 
+///Condições de contorno
+///Se for nulo, não usa a condição. Se sim, usa.
+///A lista de double deve ter as mesmas dimensões da lista de valores.
+///É usado como um map para poder dar a condição de múltiplas substâncias.
+class UnidimensionalBoundaryConditions<T>{
+  Map<T, List<double?>> map;
+  UnidimensionalBoundaryConditions(this.map);
+  
+  UnidimensionalBoundaryConditions clone(){
+    final _clonedMap = <dynamic, List<double?>>{};
+    map.forEach((key, value) {
+      _clonedMap[key] = value.map((e) => e).toList();
+     });
+    return UnidimensionalBoundaryConditions(_clonedMap);
+  }
+
+}
+
 ///Representa a variação da concentração com o tempo
 class UnidimensionalDcDt {
   ///U é a velocidade linear intersticial
@@ -11,6 +29,7 @@ class UnidimensionalDcDt {
       required double dc_dx,
       required double porosity,
       required double dq_dt}) {
+    //modelo: LIVRO Separation Process Principles- Chemical and Biochemical Operations pg 616(588)
     return dax * d2c_dx2 - u * dc_dx - ((1 - porosity) / porosity) * dq_dt;
   }
 }
