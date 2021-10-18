@@ -1,5 +1,5 @@
-import 'package:adsorption_columns_flutterrr/domain/discretization/discretization.dart';
 
+import '../discretization/discretization.dart';
 import 'calculators.dart';
 
 class UnidimensionalConcentration<T> {

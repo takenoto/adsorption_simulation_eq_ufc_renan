@@ -1,7 +1,8 @@
-import 'package:adsorption_columns_flutterrr/domain/adsorption_columns/column_simple.dart';
-import 'package:adsorption_columns_flutterrr/domain/discretization/discretization.dart';
 
+
+import '../domain.dart';
 import 'calculators.dart';
+import 'column_simple.dart';
 
 class AdsorptionColumnSimulator {
   ///Retorna uma lista com os valores calculados.

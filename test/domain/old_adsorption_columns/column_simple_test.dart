@@ -1,4 +1,7 @@
-import 'package:adsorption_columns_flutterrr/domain/domain.dart';
+import 'package:adsorption_columns_flutterrr/backup_old/old_domain/adsorption_columns/calculators.dart';
+import 'package:adsorption_columns_flutterrr/backup_old/old_domain/discretization/discretization.dart';
+import 'package:adsorption_columns_flutterrr/backup_old/old_domain/domain.dart';
+
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
