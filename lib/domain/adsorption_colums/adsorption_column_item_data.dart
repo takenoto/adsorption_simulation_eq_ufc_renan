@@ -30,6 +30,21 @@ class AdsorbedPhaseConcs extends Clonable {
   ///Armazena, em cada ponto de raio e angle 1 e 2, as concentrações para cada substância.
   final SphericalCoordinateValues<ConcentrationMap> _values;
 
+  ///Pega o valor do raio mais externo
+  ConcentrationMap getAtSurface() =>
+      _values.get(r: _values.radiusIndexLength - 1, angle1: 0, angle2: 0);
+
+  ConcentrationMap getAt({int r = 0, int angle1 = 0, int angle2 = 0}) =>
+      _values.get(r: r, angle1: angle1, angle2: angle2);
+
+  void setValueAt(
+      {required ConcentrationMap value,
+      required int r,
+      required int angle1,
+      required int angle2}) {
+    _values.setValueAt(value: value, r: r, angle1: angle1, angle2: angle2);
+  }
+
   AdsorbedPhaseConcs(this._values);
 
   @override
