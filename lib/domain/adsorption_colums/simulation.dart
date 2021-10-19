@@ -8,7 +8,7 @@ import 'adsorption_column_state.dart';
 ///[timeStep] => A interação de tempo atual. Se for 0, indica que é o primeiro dt, por exemplo.
 ///
 ///**A função deve EDITAR DIRETAMENTE no [state].**
-typedef ConcentrationMap CalculateAdsorptionColumnStepForCyllindricalCoordinates({
+typedef void CalculateAdsorptionColumnStepForCyllindricalCoordinates({
   required CyllindricalAdsorptionColumnState state,
   required CyllindricalAdsorptionColumnState previousState,
   required int timeStep,
@@ -60,7 +60,7 @@ class CyllindricalAdsorptionColumnSimulation {
         }
       }
       time.add(dt * t);
-      states.add(currentState);
+      states.add(currentState.clone());
       previousState = currentState.clone();
     }
 
