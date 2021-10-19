@@ -3,11 +3,13 @@ import 'package:adsorption_columns_flutterrr/domain/discretization/values/spheri
 import 'package:adsorption_columns_flutterrr/domain/utils/clonable.dart';
 
 ///Armazena os dados básicos do que é armazenado em uma coluna de adsorção.
+///
+///Os valores são nullable para facilitar a aplicação de condições de contorno posteriormente.
 class AdsorptionColumnItemData implements Clonable {
-  final double fluidPhaseTemperature;
-  final double adsorbentTemperature;
-  final ConcentrationMap fluidPhaseConcs;
-  final AdsorbedPhaseConcs adsorbedPhaseConcs;
+  final double? fluidPhaseTemperature;
+  final double? adsorbentTemperature;
+  final ConcentrationMap? fluidPhaseConcs;
+  final AdsorbedPhaseConcs? adsorbedPhaseConcs;
 
   AdsorptionColumnItemData(
       {required this.adsorbedPhaseConcs,
@@ -18,8 +20,8 @@ class AdsorptionColumnItemData implements Clonable {
   @override
   AdsorptionColumnItemData clone() {
     return AdsorptionColumnItemData(
-        adsorbedPhaseConcs: adsorbedPhaseConcs.clone(),
-        fluidPhaseConcs: fluidPhaseConcs.clone(),
+        adsorbedPhaseConcs: adsorbedPhaseConcs?.clone(),
+        fluidPhaseConcs: fluidPhaseConcs?.clone(),
         fluidPhaseTemperature: fluidPhaseTemperature,
         adsorbentTemperature: adsorbentTemperature);
   }
