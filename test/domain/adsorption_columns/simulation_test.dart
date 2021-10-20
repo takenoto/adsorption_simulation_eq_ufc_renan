@@ -53,6 +53,7 @@ void main() {
       final result = simulator.simulate(
           initialState: initialState.clone(),
           boundaryConditions: initialState.clone(),
+          columnDimensions: CyllindricalDimensions(length: 1.5, radius: 0.3),
           numberOfTimeSteps: 2,
           totalTime: 100,
           stepCalc: ({
@@ -78,7 +79,7 @@ void main() {
           });
 
       //Só foram 2 etapas:
-      expect(result.time.length, 2);
+      expect(result.discretization.time.length, 2);
       expect(result.states.length, 2);
 
       //Os valores do primeiro ponto da simulação são idênticos aos do estado inicial.
