@@ -1,7 +1,9 @@
-
 import 'package:adsorption_columns_flutterrr/domain/chemistry/chemistry.dart';
 
 import 'adsorption_column_state.dart';
+import 'dart:math' as math;
+
+import 'adsorption_columns.dart';
 
 ///Responsável por calcular a variação de concentração dentro daquele delta da coluna, BEM COMO A VARIAÇÃO DE TEMPERATURA, SE HOUVER.
 ///
@@ -24,22 +26,45 @@ class CyllindricalAdsorptionColumnSimulation {
   CyllindricalAdsorptionColumnSimulationResult simulate(
       {required CyllindricalAdsorptionColumnState initialState,
       required CyllindricalAdsorptionColumnState boundaryConditions,
-      required int numberOfTimeSteps,
       required double totalTime,
-      required CalculateAdsorptionColumnStepForCyllindricalCoordinates
-          stepCalc,
+      required int numberOfTimeSteps,
+      required CyllindricalDimensions columnDimensions,
+      required CalculateAdsorptionColumnStepForCyllindricalCoordinates stepCalc,
       String? description}) {
     ///Lista que irá armazenar todos os estados ao longo do tempo.
     final states = <CyllindricalAdsorptionColumnState>[];
 
     ///Lista que armazena o tempo
-    final time = <double>[];
+    final time = <double>[
+      for (int t = 0; t < numberOfTimeSteps; t++)
+        (t / numberOfTimeSteps) * totalTime
+    ];
+    final zDisc = <double>[
+      for (int z = 0; z < initialState.state.lengthIndexLength; z++)
+        (z / initialState.state.lengthIndexLength) * columnDimensions.length
+    ];
+    final rDisc = <double>[
+      for (int r = 0; r < initialState.state.radiusIndexLength; r++)
+        (r / initialState.state.radiusIndexLength) * columnDimensions.radius
+    ];
+
+    ///In radians
+    final angleDisc = <double>[
+      for (int angle = 0; angle < initialState.state.angleIndexLength; angle++)
+        (angle / initialState.state.angleIndexLength) * 2 * math.pi
+    ];
+
+    ///Discretização
+    final disc = CyllindricalAdsorptionColumnSimulationDiscretization(
+        time: time,
+        zDiscretization: zDisc,
+        rDiscretization: rDisc,
+        angleDiscretization: angleDisc,
+        dimensions: columnDimensions);
 
     ///Adiciona o estado inicial.
     states.add(initialState.clone());
-    time.add(0);
 
-    final dt = totalTime / numberOfTimeSteps;
     CyllindricalAdsorptionColumnState currentState = initialState.clone();
     CyllindricalAdsorptionColumnState previousState = initialState.clone();
     for (int t = 1; t < numberOfTimeSteps; t++) {
@@ -59,7 +84,6 @@ class CyllindricalAdsorptionColumnSimulation {
           }
         }
       }
-      time.add(dt * t);
       states.add(currentState.clone());
       previousState = currentState.clone();
     }
@@ -67,37 +91,8 @@ class CyllindricalAdsorptionColumnSimulation {
     return CyllindricalAdsorptionColumnSimulationResult(
         initialState: initialState,
         boundaryConditions: boundaryConditions,
-        totalTime: totalTime,
         states: states,
-        numberOfSteps: numberOfTimeSteps,
-        time: time,
+        discretization: disc,
         description: description);
   }
-}
-
-class CyllindricalAdsorptionColumnSimulationResult {
-  ///Descrição do que essa simulação representa; parâmetro opcional.
-  final String? description;
-  final CyllindricalAdsorptionColumnState initialState;
-  final CyllindricalAdsorptionColumnState boundaryConditions;
-
-  ///Em quantos intervalos o tempo será dividido.
-  final int numberOfSteps;
-  final double totalTime;
-
-  ///Os vários estados ao longo do tempo
-  final List<CyllindricalAdsorptionColumnState> states;
-
-  ///Discretização do tempo
-  final List<double> time;
-
-  CyllindricalAdsorptionColumnSimulationResult(
-      {required this.initialState,
-      required this.boundaryConditions,
-      required this.totalTime,
-      required this.numberOfSteps,
-      required this.states,
-      required this.time,
-      this.description})
-      : assert(time.length == states.length);
 }
