@@ -29,7 +29,7 @@ class CyllindricalAdsorptionColumnSimulation {
       required CyllindricalAdsorptionColumnState boundaryConditions,
       required double totalTime,
       required int numberOfTimeSteps,
-      required CyllindricalDimensions columnDimensions,
+      required CyllindricalColumnWithSphericalParticleDimensions dimensions,
       required CalculateAdsorptionColumnStepForCyllindricalCoordinates stepCalc,
       String? description}) {
     ///Lista que irá armazenar todos os estados ao longo do tempo.
@@ -42,11 +42,11 @@ class CyllindricalAdsorptionColumnSimulation {
     ];
     final zDisc = <double>[
       for (int z = 0; z < initialState.state.lengthIndexLength; z++)
-        (z / initialState.state.lengthIndexLength) * columnDimensions.length
+        (z / initialState.state.lengthIndexLength) * dimensions.length
     ];
     final rDisc = <double>[
       for (int r = 0; r < initialState.state.radiusIndexLength; r++)
-        (r / initialState.state.radiusIndexLength) * columnDimensions.radius
+        (r / initialState.state.radiusIndexLength) * dimensions.radius
     ];
 
     ///In radians
@@ -61,7 +61,22 @@ class CyllindricalAdsorptionColumnSimulation {
         zDiscretization: zDisc,
         rDiscretization: rDisc,
         angleDiscretization: angleDisc,
-        dimensions: columnDimensions);
+        dimensions: dimensions);
+    final ads = initialState.state.get(z: 0, r: 0, angle: 0).adsorbedPhaseConcs;
+    final particleDisc = SphericalParticleDiscretization(
+      particleRadius: [
+        for (int r = 0; r < (ads?.radiusIndexLength ?? 1); r++)
+          dimensions.particleRadius * r / (ads?.radiusIndexLength ?? 1)
+      ],
+      particleAngle1: [
+        for (int a = 0; a < (ads?.angle1IndexLength ?? 1); a++)
+          2 * math.pi * a / (ads?.radiusIndexLength ?? 1)
+      ],
+      particleAngle2: [
+        for (int a = 0; a < (ads?.angle2IndexLength ?? 1); a++)
+          2 * math.pi * a / (ads?.radiusIndexLength ?? 1)
+      ],
+    );
 
     ///Adiciona o estado inicial.
     states.add(initialState.clone());
@@ -95,6 +110,7 @@ class CyllindricalAdsorptionColumnSimulation {
         boundaryConditions: boundaryConditions,
         states: states,
         discretization: disc,
+        particleDiscretization: particleDisc,
         description: description);
   }
 }

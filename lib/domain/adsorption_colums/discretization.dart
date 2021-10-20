@@ -28,3 +28,12 @@ class CyllindricalAdsorptionColumnSimulationDiscretization {
       required this.rDiscretization,
       required this.angleDiscretization});
 }
+
+
+class SphericalParticleDiscretization{
+  final List<double> particleRadius;
+  final List<double> particleAngle1;
+  final List<double> particleAngle2;
+
+  SphericalParticleDiscretization({required this.particleRadius, required this.particleAngle1, required this.particleAngle2});
+}
