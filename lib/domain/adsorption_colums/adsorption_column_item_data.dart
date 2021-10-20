@@ -39,6 +39,10 @@ class AdsorbedPhaseConcs extends Clonable {
   ConcentrationMap getAt({int r = 0, int angle1 = 0, int angle2 = 0}) =>
       _values.get(r: r, angle1: angle1, angle2: angle2);
 
+  int get radiusIndexLength => _values.radiusIndexLength;
+  int get angle1IndexLength => _values.angle1IndexLength;
+  int get angle2IndexLength => _values.angle2IndexLength;
+
   void setValueAt(
       {required ConcentrationMap value,
       required int r,
