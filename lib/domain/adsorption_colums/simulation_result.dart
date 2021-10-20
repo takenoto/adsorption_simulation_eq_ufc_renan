@@ -8,6 +8,7 @@ class CyllindricalAdsorptionColumnSimulationResult {
   final CyllindricalAdsorptionColumnState boundaryConditions;
 
   final CyllindricalAdsorptionColumnSimulationDiscretization discretization;
+  final SphericalParticleDiscretization particleDiscretization;
 
   ///Os vários estados ao longo do tempo
   final List<CyllindricalAdsorptionColumnState> states;
@@ -17,6 +18,7 @@ class CyllindricalAdsorptionColumnSimulationResult {
       required this.boundaryConditions,
       required this.states,
       required this.discretization,
+      required this.particleDiscretization,
       this.description})
       : assert(states.length == discretization.time.length);
 }
