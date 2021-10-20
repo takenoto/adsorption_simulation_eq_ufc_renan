@@ -56,14 +56,15 @@ void main() {
           columnDimensions: CyllindricalDimensions(length: 1.5, radius: 0.3),
           numberOfTimeSteps: 2,
           totalTime: 100,
-          stepCalc: ({
-            required CyllindricalAdsorptionColumnState state,
-            required CyllindricalAdsorptionColumnState previousState,
-            required int timeStep,
-            required int zIndex,
-            required int rIndex,
-            required int angleIndex,
-          }) {
+          stepCalc: (
+              {required CyllindricalAdsorptionColumnState state,
+              required CyllindricalAdsorptionColumnState previousState,
+              required int timeStep,
+              required int zIndex,
+              required int rIndex,
+              required int angleIndex,
+              required CyllindricalAdsorptionColumnSimulationDiscretization
+                  discretization}) {
             final data =
                 state.state.get(z: zIndex, r: rIndex, angle: angleIndex);
 
