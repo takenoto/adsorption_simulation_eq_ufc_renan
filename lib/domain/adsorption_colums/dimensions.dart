@@ -12,11 +12,15 @@ class CyllindricalColumnWithSphericalParticleDimensions implements CyllindricalD
   @override
   final double radius;
   
+  ///[porosity] must be =<1 and >=0
+  final double porosity;
+  
   final double particleRadius;
   
   CyllindricalColumnWithSphericalParticleDimensions({
     required this.length,
     required this.radius,
-    required this.particleRadius
-  });
+    required this.particleRadius,
+    required this.porosity,
+  }):assert(0<=porosity && porosity<=1);
 }
