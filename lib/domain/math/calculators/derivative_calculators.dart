@@ -10,7 +10,7 @@ class ValuePair {
 class SingleDerivativeCalculatorFiniteDifference {
   //Calcula derivada simples com os resultados de y e x passados
   //Pode ser usado tanto para diferença forward qunanto backward. Até pra central também!
-  double difference(ValuePair y, ValuePair x) {
+  double dydx(ValuePair y, ValuePair x) {
     return (y.v2 - y.v1) / (x.v2 - x.v1);
   }
 }
