@@ -18,6 +18,7 @@ typedef void CalculateAdsorptionColumnStepForCyllindricalCoordinates({
   required int rIndex,
   required int angleIndex,
   required CyllindricalAdsorptionColumnSimulationDiscretization discretization,
+  required CyllindricalColumnWithSphericalParticleDimensions dimensions,
 });
 
 class CyllindricalAdsorptionColumnSimulation {
@@ -97,6 +98,7 @@ class CyllindricalAdsorptionColumnSimulation {
               rIndex: r,
               angleIndex: angle,
               discretization: disc,
+              dimensions: dimensions
             );
           }
         }

@@ -9,7 +9,7 @@ class ConcentrationMap implements Clonable {
     return _concs[key];
   }
 
-  void setAt(String key, double value) {
+  void setValueAt(String key, double value) {
     _concs[key] = value;
   }
 
